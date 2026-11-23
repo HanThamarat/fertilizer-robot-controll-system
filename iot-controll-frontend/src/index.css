@@ -1,1 +1,81 @@
-@import "tailwindcss";
+:root {
+  --gh-canvas-inset: #010409;
+  --gh-canvas: #0d1117;
+  --gh-canvas-subtle: #151b23;
+  --gh-border: #3d444d;
+  --gh-border-muted: #30363d;
+  --gh-fg: #e6edf3;
+  --gh-fg-muted: #8d96a0;
+  --gh-accent: #4493f8;
+  --gh-success: #3fb950;
+  --gh-attention: #d29922;
+  --gh-danger: #f85149;
+  --gh-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--gh-canvas);
+  color: var(--gh-fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  caret-color: var(--gh-accent);
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+::selection {
+  background: rgba(56, 139, 253, 0.4);
+  color: var(--gh-fg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--gh-accent);
+  outline-offset: -2px;
+}
+
+* {
+  scrollbar-color: var(--gh-border) transparent;
+  scrollbar-width: thin;
+}
+
+a {
+  color: var(--gh-accent);
+  text-decoration: none;
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.mono,
+code {
+  font-family: var(--gh-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}

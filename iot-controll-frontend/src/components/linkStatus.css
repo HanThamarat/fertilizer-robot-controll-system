@@ -1,0 +1,67 @@
+.link-pill {
+  --pill: var(--gh-fg-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--gh-border);
+  border-radius: 999px;
+  color: var(--gh-fg);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: default;
+  transition: border-color 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.link-pill--online { --pill: var(--gh-success); }
+.link-pill--connecting { --pill: var(--gh-attention); }
+.link-pill--offline { --pill: var(--gh-danger); border-color: rgba(248, 81, 73, 0.4); }
+
+.link-pill__dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pill);
+}
+
+.link-pill--online .link-pill__dot::after,
+.link-pill--connecting .link-pill__dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--pill);
+  animation: link-ping 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+/* Online: one pulse when the link comes up, then a steady dot. Connecting keeps pinging. */
+.link-pill--online .link-pill__dot::after {
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+.link-pill--connecting .link-pill__dot::after {
+  animation-duration: 1.2s;
+}
+
+@keyframes link-ping {
+  0% { transform: scale(1); opacity: 0.6; }
+  70%, 100% { transform: scale(2.6); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link-pill__dot::after { animation: none !important; display: none; }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
