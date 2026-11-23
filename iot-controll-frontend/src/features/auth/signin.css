@@ -1,0 +1,97 @@
+.signin {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  padding: 40px 16px 48px;
+  background: var(--gh-canvas);
+}
+
+.signin__column {
+  width: 100%;
+  max-width: 340px;
+}
+
+.signin__head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+.signin__head h1 {
+  font-size: 24px;
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.signin__flash {
+  margin-bottom: 16px;
+}
+
+.signin__box {
+  padding: 16px;
+  background: var(--gh-canvas-subtle);
+  border: 1px solid var(--gh-border-muted);
+  border-radius: 6px;
+}
+
+.signin__box .ant-form-item {
+  margin-bottom: 16px;
+}
+
+.signin__box .ant-form-item-label {
+  padding-bottom: 6px;
+}
+
+.signin__box .ant-form-item-label > label {
+  font-weight: 500;
+  color: var(--gh-fg);
+}
+
+.signin__box .signin__remember {
+  margin-top: -4px;
+  margin-bottom: 16px;
+}
+
+.signin__box--secondary {
+  margin-top: 16px;
+  text-wrap: balance;
+  text-align: center;
+  background: transparent;
+  color: var(--gh-fg);
+}
+
+.signin__note {
+  margin-top: 24px;
+  color: var(--gh-fg-muted);
+  font-size: 12px;
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.signin__note code {
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: rgba(101, 108, 118, 0.2);
+  color: var(--gh-fg);
+}
+
+@media (min-width: 768px) {
+  .signin {
+    padding-top: 72px;
+  }
+}
+
+/* Keep saved-credential autofill inside the dark palette */
+.signin input:-webkit-autofill,
+.signin input:-webkit-autofill:hover,
+.signin input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--gh-fg);
+  caret-color: var(--gh-accent);
+  box-shadow: 0 0 0 1000px var(--gh-canvas) inset;
+  transition: background-color 9999s ease-out 0s;
+}
