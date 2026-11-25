@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { RobotOutlined } from "@ant-design/icons";
 import LinkStatus from "../../components/LinkStatus";
+import DeviceList from "../devices/DeviceList";
 import { formatSince } from "../connection/formatSince";
 import { useAppSelector } from "../../store/hooks";
 
@@ -52,11 +52,7 @@ const OverviewPage = () => {
 
       <section className="page__section" aria-labelledby="devices-h">
         <h2 id="devices-h">Devices</h2>
-        <div className="box box__blank">
-          <RobotOutlined />
-          <h3>No devices registered yet</h3>
-          <p>When a fertilizer robot comes online, its status and controls will appear here.</p>
-        </div>
+        <DeviceList />
       </section>
     </div>
   );

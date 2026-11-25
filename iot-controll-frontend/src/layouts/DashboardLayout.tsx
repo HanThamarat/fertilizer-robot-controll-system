@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Avatar, Button, Drawer, Dropdown, Grid, Layout, Menu, type MenuProps } from "antd";
-import { LogoutOutlined, MenuOutlined } from "@ant-design/icons";
+import { KeyOutlined, LogoutOutlined, MenuOutlined } from "@ant-design/icons";
 import { Link, Outlet, useLocation, useNavigate } from "react-router";
 import BrandMark from "../components/BrandMark";
 import LinkStatus from "../components/LinkStatus";
-import { signOut } from "../features/auth/authSlice";
+import { isAuthMock, refreshMe, signOut } from "../features/auth/authSlice";
+import ChangePasswordModal from "../features/auth/ChangePasswordModal";
 import { useRealtimeLink } from "../features/connection/useRealtimeLink";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { findNavItem, NAV_ITEMS } from "./navItems";
@@ -21,6 +22,14 @@ const DashboardLayout = () => {
   const screens = Grid.useBreakpoint();
   const isDesktop = !!screens.lg;
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [pwOpen, setPwOpen] = useState(false);
+
+  // Pick up role/name changes an admin made since this session signed in.
+  useEffect(() => {
+    if (!isAuthMock) dispatch(refreshMe());
+  }, [dispatch]);
+
+  const navItems = NAV_ITEMS.filter((i) => !i.adminOnly || user?.role === "admin");
 
   const current = findNavItem(pathname);
 
@@ -28,7 +37,7 @@ const DashboardLayout = () => {
     <Menu
       mode="inline"
       selectedKeys={[current.path]}
-      items={NAV_ITEMS.map((i) => ({ key: i.path, icon: i.icon, label: <Link to={i.path}>{i.label}</Link> }))}
+      items={navItems.map((i) => ({ key: i.path, icon: i.icon, label: <Link to={i.path}>{i.label}</Link> }))}
       onClick={() => setDrawerOpen(false)}
     />
   );
@@ -44,10 +53,12 @@ const DashboardLayout = () => {
       ),
     },
     { type: "divider" },
+    { key: "password", icon: <KeyOutlined />, label: "Change password" },
     { key: "signout", icon: <LogoutOutlined />, label: "Sign out" },
   ];
 
   const onAccountClick: MenuProps["onClick"] = ({ key }) => {
+    if (key === "password") setPwOpen(true);
     if (key === "signout") {
       dispatch(signOut());
       navigate("/signin", { replace: true });
@@ -122,6 +133,8 @@ const DashboardLayout = () => {
       >
         {navMenu}
       </Drawer>
+
+      <ChangePasswordModal open={pwOpen} onClose={() => setPwOpen(false)} />
     </Layout>
   );
 };

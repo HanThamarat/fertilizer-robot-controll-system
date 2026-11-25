@@ -5,6 +5,7 @@ export interface AuthUser {
   email: string;
   name?: string;
   role?: "admin" | "operator";
+  createdAt?: string;
 }
 
 export interface SignInPayload {
@@ -61,6 +62,12 @@ export const signIn = createAsyncThunk<
   }
 });
 
+/** GET /api/auth/me: picks up role/name changes an admin made since sign-in. */
+export const refreshMe = createAsyncThunk<AuthUser>("auth/refreshMe", async () => {
+  const res = await axiosClient.get("/auth/me");
+  return (res.data.body as { user: AuthUser }).user;
+});
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -91,6 +98,12 @@ const authSlice = createSlice({
         localStorage.setItem(TOKEN_KEY, token);
         (remember ? localStorage : sessionStorage).setItem(USER_KEY, JSON.stringify(user));
       })
+      .addCase(refreshMe.fulfilled, (state, action) => {
+        if (!state.user) return;
+        state.user = action.payload;
+        const store = localStorage.getItem(USER_KEY) ? localStorage : sessionStorage;
+        store.setItem(USER_KEY, JSON.stringify(action.payload));
+      })
       .addCase(signIn.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload ?? "Sign-in failed. Try again.";
@@ -99,4 +112,5 @@ const authSlice = createSlice({
 });
 
 export const { signOut, clearAuthError } = authSlice.actions;
+export const isAuthMock = useMock;
 export default authSlice.reducer;

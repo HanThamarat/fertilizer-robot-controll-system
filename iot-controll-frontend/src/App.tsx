@@ -5,6 +5,9 @@ import PlaceholderPage from "./components/PlaceholderPage";
 import NotFound from "./components/NotFound";
 import SignInPage from "./features/auth/SignInPage";
 import OverviewPage from "./features/overview/OverviewPage";
+import ControllerPage from "./features/controller/ControllerPage";
+import UsersPage from "./features/users/UsersPage";
+import RequireAdmin from "./components/RequireAdmin";
 
 function App() {
   return (
@@ -18,9 +21,18 @@ function App() {
         }
       >
         <Route index element={<OverviewPage />} />
+        <Route path="controller" element={<ControllerPage />} />
         <Route
           path="devices"
           element={<PlaceholderPage title="Devices" description="Robots and sensors connected to this system." />}
+        />
+        <Route
+          path="users"
+          element={
+            <RequireAdmin>
+              <UsersPage />
+            </RequireAdmin>
+          }
         />
         <Route
           path="settings"

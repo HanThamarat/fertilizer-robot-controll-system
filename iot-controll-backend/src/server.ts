@@ -5,7 +5,9 @@ import { setErrResonse, setResonse } from "./hooks/response";
 import { createServer } from 'node:http';
 import { intialSocketIo } from "./socket/socketServer";
 import { seedInitialUser } from "./seed/initialUser";
+import cors from "cors";
 import routes from "./routes";
+import { startMqttBridge } from "./mqtt/mqttBridge";
 
 
 dotenv.config();
@@ -15,6 +17,11 @@ const server = createServer(app);
 const port = Number(process.env.PORT) || 3000;
 
 app.use(express.json());
+app.use(cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+}));
 app.use("/api", routes);
 
 app.get("/", (req: Request, res: Response) => {
@@ -34,7 +41,8 @@ app.get("/", (req: Request, res: Response) => {
     }
 });
 
-intialSocketIo(server);
+const io = intialSocketIo(server);
+startMqttBridge(io).catch((error) => console.log("MQTT error :", error));
 
 server.listen(port, async () => {
     try {
