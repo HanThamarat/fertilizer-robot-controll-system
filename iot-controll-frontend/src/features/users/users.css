@@ -1,0 +1,108 @@
+.users__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.users__toolbar .ant-input-affix-wrapper {
+  max-width: 320px;
+}
+
+.users__count {
+  flex: none;
+  color: var(--gh-fg-muted);
+  font-size: 12px;
+}
+
+.users__table {
+  border: 1px solid var(--gh-border-muted);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.users__table .ant-table-thead > tr > th {
+  background: var(--gh-canvas-subtle);
+  color: var(--gh-fg-muted);
+  font-weight: 600;
+}
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.user-cell__avatar {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--gh-border);
+  border-radius: 50%;
+  background: #2f3742;
+  font-weight: 600;
+}
+
+.user-cell__name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.user-cell__you {
+  padding: 0 6px;
+  border: 1px solid var(--gh-border);
+  border-radius: 999px;
+  color: var(--gh-fg-muted);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+.user-cell__email {
+  color: var(--gh-fg-muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.role-pick {
+  display: grid;
+  gap: 8px;
+}
+
+.role-pick .ant-radio-wrapper {
+  align-items: flex-start;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--gh-border-muted);
+  border-radius: 6px;
+}
+
+.role-pick .ant-radio-wrapper-checked {
+  border-color: var(--gh-accent);
+}
+
+.role-pick .ant-radio-wrapper > span:last-child {
+  display: grid;
+}
+
+.role-pick .ant-radio-wrapper span span {
+  color: var(--gh-fg-muted);
+  font-size: 12px;
+}
+
+@media (max-width: 543px) {
+  .users__toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .users__toolbar .ant-input-affix-wrapper {
+    max-width: none;
+  }
+}
