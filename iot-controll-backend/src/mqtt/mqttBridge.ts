@@ -54,7 +54,7 @@ export const startMqttBridge = async (io: Server) => {
         console.log("[mqtt] bridge connected to", url);
         client!.subscribe([SENSOR_SUBSCRIPTION, STATUS_SUBSCRIPTION], { qos: 1 });
     });
-    client.on("error", (err) => console.log("[mqtt] error:", err.message));
+    client.on("error", (err) => console.log("[mqtt] error:", describeError(err)));
 
     client.on("message", (topic, payload) => {
         const parsed = parseTopic(topic);
@@ -85,6 +85,16 @@ export const startMqttBridge = async (io: Server) => {
         for (const reading of latest.values()) socket.emit("sensor:reading", reading);
     });
 };
+
+/** Network errors (e.g. AggregateError from IPv4+IPv6 attempts) often have an empty message. */
+const describeError = (err: Error & { code?: string | number; errors?: Error[] }): string => {
+    if (err.errors?.length) return err.errors.map((e) => describeError(e)).join("; ");
+    return [err.code, err.message].filter(Boolean).join(" ") || String(err);
+};
+
+/** Disconnects from the broker (used on shutdown). */
+export const stopMqttBridge = () =>
+    new Promise<void>((resolve) => (client ? client.end(false, {}, () => resolve()) : resolve()));
 
 /** Publishes a command to the ESP32 on <prefix>/<robotId>/cmd/<deviceId>/<channel>. */
 export const publishCommand = (deviceId: string, channel: number, value: SensorValue) => {

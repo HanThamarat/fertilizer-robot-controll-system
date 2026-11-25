@@ -7,7 +7,7 @@ import { intialSocketIo } from "./socket/socketServer";
 import { seedInitialUser } from "./seed/initialUser";
 import cors from "cors";
 import routes from "./routes";
-import { startMqttBridge } from "./mqtt/mqttBridge";
+import { startMqttBridge, stopMqttBridge } from "./mqtt/mqttBridge";
 
 
 dotenv.config();
@@ -52,3 +52,14 @@ server.listen(port, async () => {
         console.log("Server error :", error);
     }
 });
+
+// Hosting platforms send SIGTERM on redeploy: close cleanly instead of being killed.
+const shutdown = async (signal: string) => {
+    console.log(`${signal} received, shutting down.`);
+    io.close();
+    await stopMqttBridge();
+    server.close(() => process.exit(0));
+    setTimeout(() => process.exit(0), 5000).unref();
+};
+process.on("SIGTERM", () => void shutdown("SIGTERM"));
+process.on("SIGINT", () => void shutdown("SIGINT"));
