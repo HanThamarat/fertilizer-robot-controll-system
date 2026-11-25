@@ -8,8 +8,9 @@ import { receiveReading, type SensorReading } from "../devices/devicesSlice";
  * Backend origin for the socket. VITE_API_URL="/api" (dev, proxied) -> same origin;
  * VITE_API_URL="https://xyz.up.railway.app/api" (production) -> that host.
  */
-const apiUrl = import.meta.env.VITE_API_URL ?? "/api";
-const SOCKET_ORIGIN = /^https?:\/\//.test(apiUrl) ? new URL(apiUrl).origin : undefined;
+const apiUrl = (import.meta.env.VITE_API_URL ?? "/api").trim();
+// Resolve like the browser/axios does: relative -> current origin, absolute (any form) -> its host.
+const SOCKET_ORIGIN = new URL(apiUrl, window.location.href).origin;
 
 /** Opens the Socket.IO link to the backend and mirrors its state into Redux. */
 export const useRealtimeLink = () => {
@@ -17,7 +18,7 @@ export const useRealtimeLink = () => {
 
   useEffect(() => {
     const opts = { path: "/socket.io", reconnectionDelayMax: 8000 };
-    const socket = SOCKET_ORIGIN ? io(SOCKET_ORIGIN, opts) : io(opts);
+    const socket = io(SOCKET_ORIGIN, opts);
     dispatch(setLinkStatus("connecting"));
     socket.on("connect", () => dispatch(setLinkStatus("online")));
     socket.on("disconnect", () => dispatch(setLinkStatus("offline")));
