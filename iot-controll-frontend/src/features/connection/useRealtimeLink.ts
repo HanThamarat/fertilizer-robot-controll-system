@@ -2,7 +2,13 @@ import { useEffect } from "react";
 import { io } from "socket.io-client";
 import { useAppDispatch } from "../../store/hooks";
 import { setLinkStatus } from "./connectionSlice";
-import { receiveReading, type SensorReading } from "../devices/devicesSlice";
+import {
+  fetchDeviceState,
+  receiveReading,
+  receiveRobotStatus,
+  type RobotStatus,
+  type SensorReading,
+} from "../devices/devicesSlice";
 
 /**
  * Backend origin for the socket. VITE_API_URL="/api" (dev, proxied) -> same origin;
@@ -20,10 +26,15 @@ export const useRealtimeLink = () => {
     const opts = { path: "/socket.io", reconnectionDelayMax: 8000 };
     const socket = io(SOCKET_ORIGIN, opts);
     dispatch(setLinkStatus("connecting"));
-    socket.on("connect", () => dispatch(setLinkStatus("online")));
+    socket.on("connect", () => {
+      dispatch(setLinkStatus("online"));
+      // Pull the saved current state too, so values show even if the robot is quiet right now.
+      void dispatch(fetchDeviceState());
+    });
     socket.on("disconnect", () => dispatch(setLinkStatus("offline")));
     socket.on("connect_error", () => dispatch(setLinkStatus("offline")));
     socket.on("sensor:reading", (r: SensorReading) => dispatch(receiveReading(r)));
+    socket.on("robot:status", (s: RobotStatus) => dispatch(receiveRobotStatus(s)));
     socket.io.on("reconnect_attempt", () => dispatch(setLinkStatus("connecting")));
     return () => {
       socket.disconnect();

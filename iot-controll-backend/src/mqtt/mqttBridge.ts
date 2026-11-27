@@ -3,6 +3,7 @@ import type { Server } from "socket.io";
 import { startEmbeddedBroker } from "./broker";
 import {
     DEVICE_CHANNELS,
+    ROBOT_ID,
     SENSOR_SUBSCRIPTION,
     STATUS_SUBSCRIPTION,
     commandTopic,
@@ -11,17 +12,27 @@ import {
     parseTopic,
     type SensorValue,
 } from "./topics";
-
-interface SensorReading {
-    deviceId: string;
-    channel: number;
-    value: SensorValue;
-    at: number;
-}
+import {
+    loadDeviceState,
+    loadRobotStatus,
+    saveRobotStatus,
+    saveSensorReading,
+    type RobotStatus,
+    type SensorReading,
+} from "../database/device.db";
 
 let client: MqttClient | null = null;
 /** Latest reading per channel, replayed to browsers when they connect. */
 const latest = new Map<string, SensorReading>();
+/** Last online/offline the robot reported (null = never heard from it). */
+let robotStatus: RobotStatus | null = null;
+
+/** Everything the dashboard needs to draw the current state, served by GET /api/devices/state. */
+export const getCurrentState = () => ({
+    mqttConnected: Boolean(client?.connected),
+    robot: robotStatus ?? { robotId: ROBOT_ID, online: false, at: null },
+    readings: [...latest.values()],
+});
 
 /**
  * Connects to MQTT and forwards every sensor reading to the dashboard as the
@@ -31,6 +42,17 @@ const latest = new Map<string, SensorReading>();
  * MQTT_URL unset -> start an embedded broker on MQTT_PORT (default 1883) and use it
  */
 export const startMqttBridge = async (io: Server) => {
+    try {
+        for (const r of await loadDeviceState()) latest.set(`${r.deviceId}:${r.channel}`, r);
+    } catch (error) {
+        console.log("[db] couldn't load device state:", error);
+    }
+    try {
+        robotStatus = await loadRobotStatus(ROBOT_ID);
+    } catch (error) {
+        console.log("[db] couldn't load robot status:", error);
+    }
+
     let url = process.env.MQTT_URL?.trim();
     if (url && !/^[a-z]+:\/\//i.test(url)) {
         // Bare host like "xyz.cloudamqp.com": add scheme + port (8883 = TLS).
@@ -61,7 +83,14 @@ export const startMqttBridge = async (io: Server) => {
         if (!parsed) return;
 
         if (parsed.kind === "status") {
-            console.log(`[mqtt] ${parsed.robotId} is ${payload.toString()}`);
+            const online = payload.toString().trim().toLowerCase() === "online";
+            console.log(`[mqtt] ${parsed.robotId} is ${online ? "online" : "offline"}`);
+            if (parsed.robotId !== ROBOT_ID) return;
+            // A retained status is re-delivered on every reconnect: only store real changes.
+            if (robotStatus?.online === online) return;
+            robotStatus = { robotId: parsed.robotId, online, at: Date.now() };
+            io.emit("robot:status", robotStatus);
+            saveRobotStatus(robotStatus).catch((error) => console.log("[db] couldn't save robot status:", error));
             return;
         }
 
@@ -77,11 +106,19 @@ export const startMqttBridge = async (io: Server) => {
             value,
             at: at ?? Date.now(),
         };
-        latest.set(`${reading.deviceId}:${reading.channel}`, reading);
+        const key = `${reading.deviceId}:${reading.channel}`;
+        const changed = latest.get(key)?.value !== reading.value;
+        latest.set(key, reading);
         io.emit("sensor:reading", reading);
+
+        // Only changes are stored, so a sensor repeating the same value doesn't flood the database.
+        if (changed) {
+            saveSensorReading(reading).catch((error) => console.log("[db] couldn't save reading:", error));
+        }
     });
 
     io.on("connection", (socket) => {
+        if (robotStatus) socket.emit("robot:status", robotStatus);
         for (const reading of latest.values()) socket.emit("sensor:reading", reading);
     });
 };

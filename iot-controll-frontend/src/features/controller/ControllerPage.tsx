@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { Alert, App, Button, Popconfirm } from "antd";
-import { PoweroffOutlined } from "@ant-design/icons";
+import { PoweroffOutlined, ExpandOutlined } from "@ant-design/icons";
 import { getErrorMessage } from "../../api/axiosClient";
 import { useAppSelector } from "../../store/hooks";
 import { readingKey } from "../devices/devicesSlice";
+import { grams } from "../devices/deviceCatalog";
 import CameraView from "./CameraView";
 import DirectionPad from "./DirectionPad";
+import GamepadMode from "./GamepadMode";
 import { sendCommand, type Direction } from "./commands";
 import { useHoldControl } from "./useHoldControl";
 import "./controller.css";
@@ -24,6 +26,7 @@ const ControllerPage = () => {
   const cam = useHoldControl("camera-movement", "Camera");
   const [doorBusy, setDoorBusy] = useState<"open" | "close" | null>(null);
   const [powerBusy, setPowerBusy] = useState<"on" | "off" | null>(null);
+  const [gameMode, setGameMode] = useState(false);
 
   const power = readings[readingKey("power", 1)];
   /** null = robot hasn't reported its power state yet */
@@ -118,11 +121,15 @@ const ControllerPage = () => {
 
   return (
     <div className="page">
+      {gameMode && <GamepadMode onClose={() => setGameMode(false)} />}
       <header className="page__head">
         <div>
           <h1>Controller</h1>
           <p>Turn the robot on or off, drive it, aim the camera, and open or close the truck.</p>
         </div>
+        <Button className="gp-open" type="primary" icon={<ExpandOutlined />} onClick={() => setGameMode(true)}>
+          Game mode
+        </Button>
       </header>
 
       {!online && (
@@ -155,7 +162,7 @@ const ControllerPage = () => {
             </div>
             <div>
               <dt>Total fluffy</dt>
-              <dd className="tabular">{fluffy ? String(fluffy.value) : "—"}</dd>
+              <dd className="tabular">{fluffy ? grams(fluffy.value) : "—"}</dd>
             </div>
             <div>
               <dt>Truck</dt>

@@ -1,0 +1,263 @@
+/* ---------- full-screen game controller (mobile) ---------- */
+
+.gp {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100dvh;
+  padding:
+    max(8px, env(safe-area-inset-top))
+    max(12px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom))
+    max(12px, env(safe-area-inset-left));
+  background: radial-gradient(ellipse at center, #151b23 0%, var(--gh-canvas-inset) 75%);
+  color: var(--gh-fg);
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.gp:fullscreen {
+  background-color: var(--gh-canvas-inset);
+}
+
+/* camera backdrop */
+.gp__backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.gp__feed {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gp__cam-msg {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  max-width: 36ch;
+  padding: 16px;
+  text-align: center;
+  color: var(--gh-fg-muted);
+  pointer-events: auto;
+}
+
+.gp__cam-msg > svg {
+  font-size: 24px;
+}
+
+.gp > :not(.gp__backdrop) {
+  position: relative;
+  z-index: 1;
+}
+
+/* top HUD */
+.gp__hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.gp__stats {
+  display: flex;
+  margin: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  background: rgba(1, 4, 9, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.gp__stats > div {
+  padding: 4px 14px;
+  text-align: center;
+}
+
+.gp__stats > div + div {
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.gp__stats dt {
+  color: var(--gh-fg-muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.gp__stats dd {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.gp__stats dd.gp__low {
+  color: var(--gh-danger);
+}
+
+.gp__icon,
+.gp__chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(1, 4, 9, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: var(--gh-fg);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.gp__icon {
+  width: 40px;
+  flex: none;
+}
+
+.gp__chip {
+  flex: none;
+  padding: 0 14px;
+}
+
+.gp__chip.is-on {
+  border-color: var(--gh-success);
+  color: var(--gh-success);
+}
+
+.gp__lock {
+  align-self: start;
+  justify-self: center;
+  margin-top: 8px;
+  padding: 4px 12px;
+  border: 1px solid rgba(248, 81, 73, 0.5);
+  border-radius: 999px;
+  background: rgba(248, 81, 73, 0.18);
+  color: #ffb1ab;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* thumb controls */
+.gp__controls {
+  grid-row: 3;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.gp__stick {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+
+.gp__label {
+  color: var(--gh-fg-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 2px #000;
+}
+
+.gp .pad {
+  --cell: clamp(52px, 17vmin, 84px);
+  gap: 4px;
+}
+
+.gp .pad__btn {
+  border-color: rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  background: rgba(33, 40, 48, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  font-size: 24px;
+}
+
+.gp .pad__btn kbd {
+  display: none;
+}
+
+.gp .pad__btn.is-active {
+  background: rgba(68, 147, 248, 0.35);
+}
+
+.gp__stop {
+  align-self: center;
+  width: clamp(64px, 18vmin, 88px);
+  height: clamp(64px, 18vmin, 88px);
+  border: 2px solid rgba(248, 81, 73, 0.7);
+  border-radius: 50%;
+  background: rgba(248, 81, 73, 0.25);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.gp__stop:active:not(:disabled) {
+  transform: scale(0.94);
+  background: rgba(248, 81, 73, 0.45);
+}
+
+.gp__stop:disabled {
+  opacity: 0.45;
+}
+
+/* portrait phone: stats wrap, STOP sits above the pads */
+@media (orientation: portrait) {
+  .gp__hud {
+    flex-wrap: wrap;
+  }
+
+  .gp__stats {
+    order: 3;
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .gp__controls {
+    flex-wrap: wrap;
+  }
+
+  .gp__stop {
+    order: -1;
+    width: 100%;
+    height: 48px;
+    border-radius: 999px;
+  }
+
+  .gp .pad {
+    --cell: clamp(48px, 14vw, 72px);
+  }
+}
+
+/* trigger button on the controller page: phones / tablets only */
+.gp-open {
+  display: none;
+}
+
+@media (max-width: 1023px), (pointer: coarse) {
+  .gp-open {
+    display: inline-flex;
+  }
+}

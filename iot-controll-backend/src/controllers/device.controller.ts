@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { setErrResonse, setResonse } from "../hooks/response";
-import { publishCommand } from "../mqtt/mqttBridge";
+import { getCurrentState, publishCommand } from "../mqtt/mqttBridge";
+import { currentUser } from "../middleware/requireAuth";
+import { saveCommandLog } from "../database/device.db";
 
 interface CommandBody {
     channel?: number;
@@ -16,8 +18,20 @@ export const sendCommand = (req: Request<{ deviceId: string }, {}, CommandBody>,
     }
     try {
         const topic = publishCommand(req.params.deviceId, channel, value);
+        saveCommandLog({
+            deviceId: req.params.deviceId,
+            channel,
+            value,
+            topic,
+            by: currentUser(res).email,
+            at: Date.now(),
+        }).catch((error) => console.log("[db] couldn't save command:", error));
         return setResonse({ res, statusCode: 200, message: "Command sent.", body: { topic, value } });
     } catch (error) {
         return setErrResonse({ res, statusCode: 400, message: (error as Error).message });
     }
 };
+
+/** GET /api/devices/state -> robot online status + last value of every channel (survives restarts via Firebase). */
+export const getDeviceState = (_req: Request, res: Response) =>
+    setResonse({ res, statusCode: 200, message: "Current device state.", body: getCurrentState() });

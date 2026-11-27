@@ -1,4 +1,4 @@
-import { ControlOutlined, HomeOutlined, RobotOutlined, SettingOutlined, TeamOutlined } from "@ant-design/icons";
+import { ControlOutlined, HomeOutlined, TeamOutlined } from "@ant-design/icons";
 import type { ReactNode } from "react";
 
 export interface NavItem {
@@ -12,9 +12,7 @@ export interface NavItem {
 export const NAV_ITEMS: NavItem[] = [
   { path: "/", label: "Overview", icon: <HomeOutlined /> },
   { path: "/controller", label: "Controller", icon: <ControlOutlined /> },
-  { path: "/devices", label: "Devices", icon: <RobotOutlined /> },
   { path: "/users", label: "Users", icon: <TeamOutlined />, adminOnly: true },
-  { path: "/settings", label: "Settings", icon: <SettingOutlined /> },
 ];
 
 export const findNavItem = (pathname: string) =>

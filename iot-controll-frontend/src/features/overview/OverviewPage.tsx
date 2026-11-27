@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Alert, Tag } from "antd";
 import LinkStatus from "../../components/LinkStatus";
 import DeviceList from "../devices/DeviceList";
 import { formatSince } from "../connection/formatSince";
@@ -12,6 +13,7 @@ const STATUS_TEXT = {
 
 const OverviewPage = () => {
   const { status, since } = useAppSelector((s) => s.connection);
+  const { robot, mqttConnected, error } = useAppSelector((s) => s.devices);
 
   useEffect(() => {
     document.title = "Overview · Fertilizer Robot Control";
@@ -44,6 +46,20 @@ const OverviewPage = () => {
             <dd className="tabular">{formatSince(since)}</dd>
           </div>
           <div className="box__row">
+            <dt>Robot</dt>
+            <dd>
+              {!robot || robot.at === null ? (
+                <Tag>Never connected</Tag>
+              ) : (
+                <>
+                  <Tag color={robot.online ? "green" : "red"}>{robot.online ? "Online" : "Offline"}</Tag>
+                  <span className="tabular">since {formatSince(robot.at)}</span>
+                </>
+              )}
+              {mqttConnected === false && <Tag color="orange">Server not connected to MQTT</Tag>}
+            </dd>
+          </div>
+          <div className="box__row">
             <dt>Endpoint</dt>
             <dd className="mono">{window.location.host}/socket.io</dd>
           </div>
@@ -52,6 +68,7 @@ const OverviewPage = () => {
 
       <section className="page__section" aria-labelledby="devices-h">
         <h2 id="devices-h">Devices</h2>
+        {error && <Alert type="error" showIcon title={error} style={{ marginBottom: 12 }} />}
         <DeviceList />
       </section>
     </div>
