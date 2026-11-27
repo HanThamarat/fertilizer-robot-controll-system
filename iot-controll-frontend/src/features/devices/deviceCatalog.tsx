@@ -30,8 +30,11 @@ const onOff = (on: string, off: string) => (v: SensorValue) =>
 const percent = (v: SensorValue) =>
   typeof v === "number" ? `${Math.round(v)}%` : String(v);
 
-const amount = (v: SensorValue) =>
-  typeof v === "number" ? v.toLocaleString(undefined, { maximumFractionDigits: 1 }) : String(v);
+/** Weight from the load cell, in grams (e.g. "523.4 g"). */
+export const grams = (v: SensorValue) => {
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? `${n.toLocaleString(undefined, { maximumFractionDigits: 1 })} g` : String(v);
+};
 
 /** IoT sensors mounted on the fertilizer robot. */
 export const DEVICES: DeviceSpec[] = [
@@ -81,7 +84,7 @@ export const DEVICES: DeviceSpec[] = [
     description: "Total fluffy remaining",
     icon: <InboxOutlined />,
     channels: 1,
-    format: amount,
+    format: grams,
   },
   {
     id: "truck-door",
